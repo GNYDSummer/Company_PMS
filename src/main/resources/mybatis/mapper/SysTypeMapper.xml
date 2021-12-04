@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnyd.helloworld.mapper.SysTypeMapper">
+
+    <select id="queryAll" resultType="com.gnyd.helloworld.entity.SysType">
+        select *
+        from sys_type;
+    </select>
+
+    <select id="queryById" resultType="com.gnyd.helloworld.entity.SysType">
+        select *
+        from sys_type
+        where typeId = #{typeId};
+    </select>
+
+</mapper>

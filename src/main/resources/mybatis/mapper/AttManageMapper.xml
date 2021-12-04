@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnyd.helloworld.mapper.AttManageMapper">
+
+    <resultMap id="AttendanceMap" type="com.gnyd.helloworld.entity.AttManage">
+        <id property="id" column="id" jdbcType="INTEGER"></id>
+        <result property="staffId" column="staffId" jdbcType="INTEGER"></result>
+        <result property="attTime" column="attTime" jdbcType="DATE"></result>
+        <association property="staffEmployment" javaType="com.gnyd.helloworld.entity.StaffEmployment" column="staffName">
+            <id property="staffId" column="staffId"></id>
+            <result property="staffName" column="staffName"></result>
+        </association>
+        <association property="attStatus" javaType="com.gnyd.helloworld.entity.AttStatuses" column="status">
+            <id property="statusId" column="statusId"></id>
+            <result property="name" column="status"></result>
+        </association>
+    </resultMap>
+
+    <select id="queryAll" resultMap="AttendanceMap">
+        SELECT id,
+               am.staffId,
+               se.staffName,
+               name AS status,
+               attTime
+        FROM att_manage am
+                 JOIN staff_employment se
+                      ON am.staffId = se.staffId
+                 JOIN att_statuses at
+                      ON am.status = at.statusId
+        ORDER BY id
+    </select>
+
+    <select id="queryById" resultMap="AttendanceMap">
+        SELECT id,
+               am.staffId,
+               se.staffName,
+               name AS status,
+               attTime
+        FROM att_manage am
+                 JOIN att_statuses at
+                      ON am.status = at.statusId
+                 JOIN staff_employment se
+                      ON am.staffId = se.staffId
+        WHERE id = #{id}
+        ORDER BY id;
+    </select>
+
+    <select id="queryByCon" resultMap="AttendanceMap">
+        <bind name="keyword" value="'%' + search + '%'"/>
+        SELECT id,
+               am.staffId,
+               se.staffName,
+               name AS status,
+               attTime
+        FROM att_manage am
+                JOIN att_statuses at
+                    ON am.status = at.statusId
+                JOIN staff_employment se
+                    ON am.staffId = se.staffId
+        WHERE id like #{keyword}
+           OR am.staffId like #{keyword}
+           OR se.staffName like #{keyword}
+           OR name like #{keyword}
+           OR attTime like #{keyword}
+        ORDER BY id;
+    </select>
+
+    <insert id="saveAttMan" parameterType="com.gnyd.helloworld.entity.AttManage">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT LAST_INSERT_ID() AS ID
+        </selectKey>
+        insert into att_manage (staffId, status, attTime)
+        values (#{staffId}, #{status}, #{attTime});
+    </insert>
+
+    <update id="updateAttMan" parameterType="com.gnyd.helloworld.entity.AttManage">
+        update att_manage
+        set staffId = #{staffId},
+            status = #{status},
+            attTime = #{attTime}
+        where id = #{id};
+    </update>
+
+    <delete id="deleteAttMan" parameterType="int">
+        delete
+        from att_manage
+        where id = #{id};
+    </delete>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnyd.helloworld.mapper.SysManageMapper">
+
+    <resultMap id="SystemMap" type="com.gnyd.helloworld.entity.SysManage">
+        <id property="userId" column="userId" jdbcType="INTEGER"></id>
+        <result property="loginAccount" column="loginAccount" jdbcType="VARCHAR"></result>
+        <result property="loginPassword" column="loginPassword" jdbcType="VARCHAR"></result>
+        <result property="userName" column="userName" jdbcType="VARCHAR"></result>
+        <association property="sysType" javaType="com.gnyd.helloworld.entity.SysType" column="userType">
+            <id property="typeId" column="typeId"></id>
+            <result property="name" column="userType"></result>
+        </association>
+    </resultMap>
+
+    <select id="queryAll" resultType="com.gnyd.helloworld.entity.SysManage">
+        SELECT userId,
+               loginAccount,
+               loginPassword,
+               userName,
+               st.name AS userType
+        FROM sys_manage sm
+                 JOIN sys_type st
+                      ON sm.userType = st.typeId;
+    </select>
+
+    <select id="queryById" resultType="com.gnyd.helloworld.entity.SysManage">
+        SELECT userId,
+               loginAccount,
+               loginPassword,
+               userName,
+               st.name AS userType
+        FROM sys_manage sm
+                 JOIN sys_type st
+                      ON sm.userType = st.typeId
+        WHERE userId = #{userId};
+    </select>
+
+    <select id="queryByCon" resultType="com.gnyd.helloworld.entity.SysManage">
+        <bind name="keyword" value="'%' + search + '%'"/>
+        SELECT userId,
+        loginAccount,
+        loginPassword,
+        userName,
+        st.name AS userType
+        FROM sys_manage sm
+        JOIN sys_type st
+        ON sm.userType = st.typeId
+        WHERE userId like #{keyword}
+        OR loginAccount like #{keyword}
+        OR loginPassword like #{keyword}
+        OR userName like #{keyword}
+        OR st.name like #{keyword};
+    </select>
+
+    <insert id="saveSysMan">
+        <selectKey keyProperty="userId" resultType="int" order="AFTER">
+            SELECT LAST_INSERT_ID() AS ID
+        </selectKey>
+        insert into sys_manage (loginAccount, loginPassword, userName, userType)
+        values (#{loginAccount}, #{loginPassword}, #{userName}, #{userType});
+    </insert>
+
+    <update id="updateSysMan">
+
+    </update>
+
+    <delete id="deleteSysMan">
+
+    </delete>
+
+</mapper>

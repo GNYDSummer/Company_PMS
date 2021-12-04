@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnyd.helloworld.mapper.StaffEmploymentMapper">
+
+    <resultMap id="UserMap" type="com.gnyd.helloworld.entity.StaffEmployment">
+        <id property="staffId" column="staffId" jdbcType="INTEGER"></id>
+        <result property="staffName" column="staffName" jdbcType="VARCHAR"></result>
+        <result property="entryDate" column="entryDate" jdbcType="DATE"></result>
+        <result property="jobPos" column="jobPos" jdbcType="VARCHAR"></result>
+        <result property="capacity" column="capacity" jdbcType="VARCHAR"></result>
+        <association property="staffEmployment" javaType="com.gnyd.helloworld.entity.StaffEmployment" column="employee">
+            <id property="staffId" column="staffId"></id>
+            <result property="staffName" column="employee"></result>
+        </association>
+        <association property="staffStatuses" javaType="com.gnyd.helloworld.entity.StaffStatuses" column="status">
+            <id property="statusId" column="statusId"></id>
+            <result property="name" column="status"></result>
+        </association>
+        <association property="depManage" javaType="com.gnyd.helloworld.entity.DepManage" column="department">
+            <id property="id" column="id"></id>
+            <result property="name" column="department"></result>
+        </association>
+    </resultMap>
+
+    <select id="queryAll" resultMap="UserMap">
+        SELECT se.staffId,
+               se.staffName,
+               se.entryDate,
+               se.jobPos,
+               se.capacity,
+               sm.staffName AS employee,
+               ss.name      AS status,
+               dm.name      AS department
+        FROM staff_employment se
+                 LEFT JOIN staff_employment sm
+                           ON se.employeeId = sm.staffId
+                 JOIN staff_statuses ss
+                      ON se.status = ss.statusId
+                 JOIN dep_manage dm
+                      ON se.departmentId = dm.id;
+    </select>
+
+    <select id="queryById" resultMap="UserMap">
+        SELECT se.staffId,
+               se.staffName,
+               se.entryDate,
+               se.jobPos,
+               se.capacity,
+               sm.staffName AS employee,
+               ss.name      AS status,
+               dm.name      AS department
+        FROM staff_employment se
+                 LEFT JOIN staff_employment sm
+                           ON se.employeeId = sm.staffId
+                 JOIN staff_statuses ss
+                      ON se.status = ss.statusId
+                 JOIN dep_manage dm
+                      ON se.departmentId = dm.id
+        WHERE se.staffId = #{staffId};
+    </select>
+
+    <select id="queryByCon" resultMap="UserMap">
+        <bind name="keyword" value="'%' + search + '%'"/>
+        SELECT se.staffId,
+               se.staffName,
+               se.entryDate,
+               se.jobPos,
+               se.capacity,
+               sm.staffName AS employee,
+               ss.name      AS status,
+               dm.name      AS department
+        FROM staff_employment se
+                 LEFT JOIN staff_employment sm
+                           ON se.employeeId = sm.staffId
+                 JOIN staff_statuses ss
+                      ON se.status = ss.statusId
+                 JOIN dep_manage dm
+                      ON se.departmentId = dm.id
+        WHERE se.staffId like #{keyword}
+           OR se.staffName like #{keyword}
+           OR se.entryDate like #{keyword}
+           OR se.jobPos like #{keyword}
+           OR se.capacity like #{keyword}
+           OR sm.staffName like #{keyword}
+           OR ss.name like #{keyword}
+           OR dm.name like #{keyword};
+    </select>
+
+    <select id="queryStaByDepId" resultMap="UserMap">
+        select * from staff_employment where departmentId = #{departmentId};
+    </select>
+
+    <insert id="saveStaEmp" useGeneratedKeys="true">
+        insert into staff_employment (staffName, entryDate, jobPos, capacity, employeeId, status,
+                                      departmentId)
+        values (#{staffName}, #{entryDate}, #{jobPos}, #{capacity}, #{employeeId}, #{status}, #{departmentId});
+    </insert>
+
+    <update id="updateStaEmp">
+        update staff_employment
+        set staffName    = #{staffName},
+            entryDate    = #{entryDate},
+            jobPos       = #{jobPos},
+            capacity     = #{capacity},
+            employeeId   = #{employeeId},
+            status       = #{status},
+            departmentId = #{departmentId}
+        where staffId = #{staffId};
+    </update>
+
+    <delete id="deleteStaEmp">
+        delete
+        from staff_employment
+        where staffId = #{staffId};
+    </delete>
+
+</mapper>

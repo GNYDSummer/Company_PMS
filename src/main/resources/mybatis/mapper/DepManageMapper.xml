@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnyd.helloworld.mapper.DepManageMapper">
+
+    <resultMap id="DepartmentMap" type="com.gnyd.helloworld.entity.DepManage">
+        <id property="id" jdbcType="INTEGER" column="id"></id>
+        <result property="name" column="name" jdbcType="VARCHAR"></result>
+        <result property="principal" column="principal" jdbcType="VARCHAR"></result>
+        <association property="depManage" javaType="com.gnyd.helloworld.entity.DepManage" column="office">
+            <id property="id" column="id"></id>
+            <result property="name" column="office"></result>
+        </association>
+        <collection property="staffEmployments" javaType="ArrayList" column="departmentId"
+                    ofType="com.gnyd.helloworld.entity.StaffEmployment"
+                    select="com.gnyd.helloworld.mapper.StaffEmploymentMapper.queryStaByDepId">
+            <id property="staffId" jdbcType="INTEGER" column="id"></id>
+            <result property="staffName" column="staffName" jdbcType="VARCHAR"></result>
+            <result property="entryDate" column="entryDate" jdbcType="DATE"></result>
+            <result property="jobPos" column="jobPos" jdbcType="VARCHAR"></result>
+            <result property="capacity" column="capacity" jdbcType="VARCHAR"></result>
+        </collection>
+    </resultMap>
+
+    <select id="queryAll" resultMap="DepartmentMap">
+        SELECT dm.id,
+               dm.name,
+               dm.principal,
+               da.name AS office
+        FROM dep_manage dm
+                 LEFT JOIN dep_manage da
+                           ON dm.officeId = da.id;
+    </select>
+
+    <select id="queryById" resultMap="DepartmentMap" parameterType="int">
+        SELECT dm.id,
+               dm.name,
+               dm.principal,
+               da.name AS office
+        FROM dep_manage dm
+                 LEFT JOIN dep_manage da
+                           ON dm.officeId = da.id
+        WHERE dm.id = #{id};
+    </select>
+
+    <select id="queryByCon" resultMap="DepartmentMap">
+        <bind name="keyword" value="'%' + search + '%'"/>
+        SELECT dm.id,
+               dm.name,
+               dm.principal,
+               da.name AS office
+        FROM dep_manage dm
+            LEFT JOIN dep_manage da
+                ON dm.officeId = da.id
+        WHERE dm.id like #{keyword}
+           OR dm.name like #{keyword}
+           OR dm.principal like #{keyword}
+           OR da.name like #{keyword};
+    </select>
+
+    <insert id="saveDepMan" parameterType="com.gnyd.helloworld.entity.DepManage" useGeneratedKeys="true">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT LAST_INSERT_ID() AS ID
+        </selectKey>
+        insert into dep_manage (name, principal, officeId)
+        values (#{name}, #{principal}, #{officeId});
+    </insert>
+
+    <update id="updateDepMan" parameterType="com.gnyd.helloworld.entity.DepManage">
+        update dep_manage
+        set name      = #{name},
+            principal = #{principal},
+            officeId  = #{officeId}
+        where id = #{id};
+    </update>
+
+    <delete id="deleteDepMan">
+        delete
+        from dep_manage
+        where id = #{id};
+    </delete>
+
+</mapper>

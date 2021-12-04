@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gnyd.helloworld.mapper.StaffArchivesMapper">
+
+    <select id="queryAll" resultType="com.gnyd.helloworld.entity.StaffArchives">
+        select *
+        from staff_archives;
+    </select>
+
+    <select id="queryById" resultType="com.gnyd.helloworld.entity.StaffArchives">
+        select *
+        from staff_archives
+        where staffId = #{staffId};
+    </select>
+
+    <insert id="saveStaArch">
+        <selectKey resultType="int" keyProperty="staffId" order="AFTER">
+            select last_insert_id();
+        </selectKey>
+        insert into staff_archives(name, sex, nation, birthday, polStatus, education, marStatus,
+        address, sid, phone, file, residence)
+        values (#{name}, #{sex}, #{nation}, #{birthday}, #{polStatus}, #{education}, #{marStatus},
+        #{address}, #{sid}, #{phone}, #{file}, #{residence});
+    </insert>
+
+    <delete id="deleteStaArch">
+        delete
+        from staff_archives
+        where staffId = #{staffId};
+    </delete>
+
+</mapper>
